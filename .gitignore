@@ -39,5 +39,13 @@ captures/
 
 # Keystore files
 *.jks
+keystore.properties
 crowdin.properties
 .crowdin/config.yml
+
+# Claude Code local/session files (the shared settings.json + skills ARE tracked)
+.claude/settings.local.json
+.claude/*.local.json
+.claude/*.*~
+.claude/sessions/
+.claude/.cache/
