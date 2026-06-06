@@ -35,6 +35,7 @@ import com.beemdevelopment.aegis.R;
 import com.beemdevelopment.aegis.helpers.EditTextHelper;
 import com.beemdevelopment.aegis.helpers.PasswordStrengthHelper;
 import com.beemdevelopment.aegis.helpers.SimpleTextWatcher;
+import com.beemdevelopment.aegis.importers.AegisImporter;
 import com.beemdevelopment.aegis.importers.DatabaseImporter;
 import com.beemdevelopment.aegis.ui.tasks.KeyDerivationTask;
 import com.beemdevelopment.aegis.vault.VaultEntry;
@@ -518,7 +519,15 @@ public class Dialogs {
 
         int i = 0;
         if (!isDirect) {
-            i = names.indexOf(context.getString(R.string.app_name));
+            // Pre-select the importer for our own (Aegis) export format. Match by importer type
+            // rather than by app name: this fork renames app_name, so a name match would return
+            // -1 and crash on importers.get(-1).
+            for (int j = 0; j < importers.size(); j++) {
+                if (importers.get(j).getType() == AegisImporter.class) {
+                    i = j;
+                    break;
+                }
+            }
         }
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_importers, null);
         TextView helpText = view.findViewById(R.id.text_importer_help);
