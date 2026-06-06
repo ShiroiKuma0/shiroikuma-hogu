@@ -20,10 +20,18 @@ import java.util.List;
 public final class HoguTheme {
     /** Sentinel for "not set / inherit". A nearly-transparent value the picker never produces. */
     public static final int UNSET = 1;
-    public static final int SEED_YELLOW = 0xFFFFEB00;
+    /** The fork's signature accent: vivid pure yellow. When the accent equals this, the chrome is
+     *  themed via an exact static overlay (no Material tonal harmonisation). */
+    public static final int SEED_YELLOW = 0xFFFFFF00;
+    /** The earlier (softer) seeded yellow, migrated to {@link #SEED_YELLOW} on upgrade. */
+    public static final int LEGACY_YELLOW = 0xFFFFEB00;
 
     public static final String KEY_SEEDED = "pref_hogu_seeded";
+    public static final String KEY_SEEDED_VIVID = "pref_hogu_seeded_vivid";
+    public static final String KEY_SEEDED_TEXT = "pref_hogu_seeded_text";
     public static final String KEY_ACCENT = "pref_hogu_color_accent";
+    /** Body text + toolbar titles (Material colorOnSurface / onSurfaceVariant), via a text overlay. */
+    public static final String KEY_TEXT = "pref_hogu_color_text";
     public static final String KEY_COLOR_ISSUER = "pref_hogu_color_issuer";
     public static final String KEY_COLOR_ACCOUNT = "pref_hogu_color_account";
     public static final String KEY_COLOR_CODE = "pref_hogu_color_code";

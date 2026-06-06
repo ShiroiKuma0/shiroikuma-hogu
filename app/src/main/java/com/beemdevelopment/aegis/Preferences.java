@@ -76,16 +76,36 @@ public class Preferences {
      * every value can be freely changed (or reset to inherit) on the 白い熊 防具 UI page.
      */
     private void seedHoguDefaultsIfNeeded() {
-        if (_prefs.getBoolean(HoguTheme.KEY_SEEDED, false)) {
-            return;
+        SharedPreferences.Editor editor = _prefs.edit();
+        if (!_prefs.getBoolean(HoguTheme.KEY_SEEDED, false)) {
+            editor.putInt("pref_current_theme", Theme.AMOLED.ordinal())
+                    .putInt(HoguTheme.KEY_ACCENT, HoguTheme.SEED_YELLOW)
+                    .putInt(HoguTheme.KEY_TEXT, HoguTheme.SEED_YELLOW)
+                    .putInt(HoguTheme.KEY_COLOR_ISSUER, HoguTheme.SEED_YELLOW)
+                    .putInt(HoguTheme.KEY_COLOR_CODE, HoguTheme.SEED_YELLOW)
+                    .putBoolean(HoguTheme.KEY_SEEDED, true);
         }
-        _prefs.edit()
-                .putInt("pref_current_theme", Theme.AMOLED.ordinal())
-                .putInt(HoguTheme.KEY_ACCENT, HoguTheme.SEED_YELLOW)
-                .putInt(HoguTheme.KEY_COLOR_ISSUER, HoguTheme.SEED_YELLOW)
-                .putInt(HoguTheme.KEY_COLOR_CODE, HoguTheme.SEED_YELLOW)
-                .putBoolean(HoguTheme.KEY_SEEDED, true)
-                .apply();
+        // One-time migration of the earlier softer yellow (#FFEB00) to the vivid #FFFF00 identity.
+        if (!_prefs.getBoolean(HoguTheme.KEY_SEEDED_VIVID, false)) {
+            migrateLegacyYellow(editor, HoguTheme.KEY_ACCENT);
+            migrateLegacyYellow(editor, HoguTheme.KEY_COLOR_ISSUER);
+            migrateLegacyYellow(editor, HoguTheme.KEY_COLOR_CODE);
+            editor.putBoolean(HoguTheme.KEY_SEEDED_VIVID, true);
+        }
+        // Seed the (newer) configurable text colour to the vivid identity for installs predating it.
+        if (!_prefs.getBoolean(HoguTheme.KEY_SEEDED_TEXT, false)) {
+            if (_prefs.getInt(HoguTheme.KEY_TEXT, HoguTheme.UNSET) == HoguTheme.UNSET) {
+                editor.putInt(HoguTheme.KEY_TEXT, HoguTheme.SEED_YELLOW);
+            }
+            editor.putBoolean(HoguTheme.KEY_SEEDED_TEXT, true);
+        }
+        editor.apply();
+    }
+
+    private void migrateLegacyYellow(SharedPreferences.Editor editor, String key) {
+        if (_prefs.getInt(key, HoguTheme.UNSET) == HoguTheme.LEGACY_YELLOW) {
+            editor.putInt(key, HoguTheme.SEED_YELLOW);
+        }
     }
 
     public void migratePreferences() {
