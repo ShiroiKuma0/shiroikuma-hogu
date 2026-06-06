@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.core.provider.DocumentsContractCompat;
 import androidx.preference.PreferenceManager;
 
+import com.beemdevelopment.aegis.helpers.HoguTheme;
 import com.beemdevelopment.aegis.util.JsonUtils;
 import com.beemdevelopment.aegis.util.TimeUtils;
 import com.beemdevelopment.aegis.vault.VaultBackupPermissionException;
@@ -66,6 +67,25 @@ public class Preferences {
         }
 
         migratePreferences();
+        seedHoguDefaultsIfNeeded();
+    }
+
+    /**
+     * One-time seed of the 白い熊 防具 fork identity: a black (AMOLED) theme with yellow accent /
+     * issuer / OTP-code colours. Runs before any activity themes itself, and only once — afterwards
+     * every value can be freely changed (or reset to inherit) on the 白い熊 防具 UI page.
+     */
+    private void seedHoguDefaultsIfNeeded() {
+        if (_prefs.getBoolean(HoguTheme.KEY_SEEDED, false)) {
+            return;
+        }
+        _prefs.edit()
+                .putInt("pref_current_theme", Theme.AMOLED.ordinal())
+                .putInt(HoguTheme.KEY_ACCENT, HoguTheme.SEED_YELLOW)
+                .putInt(HoguTheme.KEY_COLOR_ISSUER, HoguTheme.SEED_YELLOW)
+                .putInt(HoguTheme.KEY_COLOR_CODE, HoguTheme.SEED_YELLOW)
+                .putBoolean(HoguTheme.KEY_SEEDED, true)
+                .apply();
     }
 
     public void migratePreferences() {

@@ -5,6 +5,12 @@
     android:title="@string/action_settings">
 
     <Preference
+        android:key="pref_hogu_ui"
+        app:icon="@drawable/ic_outline_brush_24"
+        app:title="@string/pref_section_hogu_ui_title"
+        app:summary="@string/pref_section_hogu_ui_summary" />
+
+    <Preference
         android:fragment="com.beemdevelopment.aegis.ui.fragments.preferences.AppearancePreferencesFragment"
         app:icon="@drawable/ic_outline_brush_24"
         app:title="@string/pref_section_appearance_title"

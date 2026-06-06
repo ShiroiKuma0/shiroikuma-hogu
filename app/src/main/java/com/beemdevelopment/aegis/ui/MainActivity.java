@@ -834,6 +834,13 @@ public class MainActivity extends AegisActivity implements EntryListView.Listene
         preferenceResultLauncher.launch(intent);
     }
 
+    private void startHoguUiActivity() {
+        // Launch via the preference result launcher so the entry list is recreated on return,
+        // re-applying any font/colour/theme changes made on the 白い熊 防具 UI page.
+        Intent intent = new Intent(this, HoguUiActivity.class);
+        preferenceResultLauncher.launch(intent);
+    }
+
     private void doShortcutActions() {
         Intent intent = getIntent();
         String action = intent.getStringExtra("action");
@@ -1011,6 +1018,18 @@ public class MainActivity extends AegisActivity implements EntryListView.Listene
     public boolean onCreateOptionsMenu(Menu menu) {
         _menu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // Long-press the settings cog to jump straight to the 白い熊 防具 UI page (a tap opens Settings).
+        View toolbar = findViewById(R.id.toolbar);
+        toolbar.post(() -> {
+            View settingsView = toolbar.findViewById(R.id.action_settings);
+            if (settingsView != null) {
+                settingsView.setOnLongClickListener(v -> {
+                    startHoguUiActivity();
+                    return true;
+                });
+            }
+        });
 
         updateLockIcon();
         updateSortCategoryMenu();
