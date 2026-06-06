@@ -2,6 +2,32 @@
     <string name="app_name" translatable="false">白い熊 防具</string>
     <string name="app_name_full" translatable="false">白い熊 防具</string>
     <string name="org_name_full" translatable="false">Beem Development</string>
+
+    <!-- 白い熊 防具 UI page -->
+    <string name="pref_section_hogu_ui_title" translatable="false">白い熊 防具 UI</string>
+    <string name="pref_section_hogu_ui_summary">Fonts, colours and theming for this fork</string>
+    <string name="hogu_section_foundation">Foundation</string>
+    <string name="hogu_section_entries">Vault entries</string>
+    <string name="hogu_app_theme">App theme</string>
+    <string name="hogu_accent_color">Primary / accent colour</string>
+    <string name="hogu_element_issuer">Issuer</string>
+    <string name="hogu_element_account">Account name</string>
+    <string name="hogu_element_code">OTP code</string>
+    <string name="hogu_label_color">Colour</string>
+    <string name="hogu_label_font">Font</string>
+    <string name="hogu_label_weight">Weight</string>
+    <string name="hogu_label_size">Size</string>
+    <string name="hogu_size_default">Default</string>
+    <string name="hogu_size_value">%d sp</string>
+    <string name="hogu_default">Default</string>
+    <string name="hogu_recently_used">Recently used</string>
+    <string name="hogu_add_font">Add font…</string>
+    <string name="hogu_font_picker_title">Choose font</string>
+    <string name="hogu_weight_title">Font weight</string>
+    <string name="hogu_sample_text" translatable="false">Aa Bb 0123 白い熊 防具</string>
+    <string name="hogu_font_import_failed">Could not import font</string>
+    <string name="hogu_font_imported">Imported %s</string>
+
     <string name="action_settings">Settings</string>
     <string name="action_about">About</string>
     <string name="action_delete">Delete</string>

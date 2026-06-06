@@ -4,6 +4,7 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
@@ -27,6 +28,8 @@ import com.beemdevelopment.aegis.Preferences;
 import com.beemdevelopment.aegis.R;
 import com.beemdevelopment.aegis.ViewMode;
 import com.beemdevelopment.aegis.helpers.AnimationsHelper;
+import com.beemdevelopment.aegis.helpers.FontUtil;
+import com.beemdevelopment.aegis.helpers.HoguTheme;
 import com.beemdevelopment.aegis.helpers.CenterVerticalSpan;
 import com.beemdevelopment.aegis.helpers.SimpleAnimationEndListener;
 import com.beemdevelopment.aegis.helpers.UiRefresher;
@@ -161,6 +164,7 @@ public class EntryHolder extends RecyclerView.ViewHolder {
         _profileIssuer.setText(profileIssuer);
         _profileName.setText(profileName);
         setAccountNameLayout(_accountNamePosition, !profileIssuer.isEmpty() && !profileName.isEmpty());
+        applyHoguStyle();
 
         if (_hidden) {
             hideCode();
@@ -487,9 +491,28 @@ public class EntryHolder extends RecyclerView.ViewHolder {
             _expirationAnimSet = null;
         }
 
-        int colorTo = MaterialColors.getColor(_profileCode, R.attr.colorCode);
+        int colorTo = HoguTheme.resolve(_profileCode, HoguTheme.KEY_COLOR_CODE, R.attr.colorCode);
         _profileCode.setTextColor(colorTo);
         _profileCode.setAlpha(1f);
+    }
+
+    /**
+     * Applies the 白い熊 防具 UI per-element fonts and colours to the entry's text views. Only
+     * attributes the user actually set are touched (see {@link FontUtil#apply}); the OTP code colour
+     * is applied separately in {@link #stopExpirationAnimation()} so it survives the refresh cycle.
+     */
+    private void applyHoguStyle() {
+        FontUtil.apply(_profileIssuer, FontUtil.ISSUER);
+        FontUtil.apply(_profileName, FontUtil.ACCOUNT);
+        FontUtil.apply(_profileCode, FontUtil.CODE);
+
+        Context ctx = itemView.getContext();
+        if (HoguTheme.isSet(ctx, HoguTheme.KEY_COLOR_ISSUER)) {
+            _profileIssuer.setTextColor(HoguTheme.getColor(ctx, HoguTheme.KEY_COLOR_ISSUER));
+        }
+        if (HoguTheme.isSet(ctx, HoguTheme.KEY_COLOR_ACCOUNT)) {
+            _profileName.setTextColor(HoguTheme.getColor(ctx, HoguTheme.KEY_COLOR_ACCOUNT));
+        }
     }
 
     public void showIcon(boolean show) {

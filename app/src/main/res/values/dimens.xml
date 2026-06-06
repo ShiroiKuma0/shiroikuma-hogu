@@ -2,4 +2,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="fab_menu_item_image_size">24dp</dimen>
     <dimen name="list_item_height">48dp</dimen>
+    <dimen name="hogu_indent_step">24dp</dimen>
+    <dimen name="hogu_row_base_padding">16dp</dimen>
 </resources>

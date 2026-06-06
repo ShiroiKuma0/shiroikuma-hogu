@@ -38,6 +38,10 @@
             android:name=".ui.AboutActivity"
             android:label="@string/title_activity_about" />
         <activity
+            android:name=".ui.HoguUiActivity"
+            android:exported="false"
+            android:label="@string/pref_section_hogu_ui_title" />
+        <activity
             android:name=".ui.ImportEntriesActivity"
             android:label="@string/title_activity_import_entries" />
         <activity
