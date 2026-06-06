@@ -15,9 +15,32 @@ def getCmdOutput = { cmd ->
 def getGitHash = { -> return getCmdOutput(["git", "rev-parse", "--short", "HEAD"]) }
 def getGitBranch = { -> return getCmdOutput(["git", "rev-parse", "--abbrev-ref", "HEAD"]) }
 
-def packageName = "com.beemdevelopment.aegis"
-def fileProviderAuthority = "${packageName}.fileprovider"
-def fileProviderAuthorityDebug = "${packageName}.debug.fileprovider"
+// Fork identity. The code namespace (packageName) stays on upstream's package so R/BuildConfig and
+// every source import are unchanged; only the installed applicationId (appId) differs, so this fork
+// installs side-by-side with upstream Aegis. The FileProvider authority must be globally unique, so it
+// derives from appId (not the namespace) — otherwise Android refuses the side-by-side install.
+def packageName = project.property("APP_NAMESPACE").toString()
+def appId = project.property("APP_ID").toString()
+def fileProviderAuthority = "${appId}.fileprovider"
+def fileProviderAuthorityDebug = "${appId}.debug.fileprovider"
+
+// Fork version: track upstream's VERSION_NAME / VERSION_CODE and append our own BUILD_NUMBER.
+def forkVersionName = "${project.property("VERSION_NAME")}+${project.property("BUILD_NUMBER")}"
+def forkVersionCode = project.property("VERSION_CODE").toString().toInteger() * 10000 +
+        project.property("BUILD_NUMBER").toString().toInteger()
+
+// Release signing: read from keystore.properties (gitignored) first, then SIGNING_* env vars.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+def hasSigningEnv = {
+    return System.getenv("SIGNING_KEY_ALIAS") != null &&
+            System.getenv("SIGNING_KEY_PASSWORD") != null &&
+            System.getenv("SIGNING_STORE_FILE") != null &&
+            System.getenv("SIGNING_STORE_PASSWORD") != null
+}
 
 android {
     compileSdk 35
@@ -25,11 +48,11 @@ android {
     namespace packageName
 
     defaultConfig {
-        applicationId "${packageName}"
+        applicationId "${appId}"
         minSdkVersion 23
         targetSdkVersion 35
-        versionCode 81
-        versionName "3.4.2"
+        versionCode forkVersionCode
+        versionName forkVersionName
         multiDexEnabled true
         buildConfigField "String", "GIT_HASH", "\"${getGitHash()}\""
         buildConfigField "String", "GIT_BRANCH", "\"${getGitBranch()}\""
@@ -67,11 +90,29 @@ android {
         }
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            release {
+                keyAlias keystoreProperties["keyAlias"]
+                keyPassword keystoreProperties["keyPassword"]
+                storeFile file(keystoreProperties["storeFile"])
+                storePassword keystoreProperties["storePassword"]
+            }
+        } else if (hasSigningEnv()) {
+            release {
+                keyAlias System.getenv("SIGNING_KEY_ALIAS")
+                keyPassword System.getenv("SIGNING_KEY_PASSWORD")
+                storeFile file(System.getenv("SIGNING_STORE_FILE"))
+                storePassword System.getenv("SIGNING_STORE_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
             manifestPlaceholders = [
-                title: "AegisDev",
+                title: "白い熊 防具 Dev",
                 iconName: "ic_launcher_debug",
                 fileProviderAuthority: "${fileProviderAuthorityDebug}"
             ]
@@ -80,7 +121,7 @@ android {
         }
         release {
             manifestPlaceholders = [
-                title: "Aegis",
+                title: "白い熊 防具",
                 iconName: "ic_launcher",
                 fileProviderAuthority: "${fileProviderAuthority}"
             ]
@@ -90,6 +131,10 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            if (keystorePropertiesFile.exists() || hasSigningEnv()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 
@@ -222,4 +267,35 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.14.1'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+
+// Fork build entry point: assemble the signed release APK, copy it to ~/tmp under our naming, and bump
+// BUILD_NUMBER so the next build is the next +N. See the build-apk skill for the full procedure.
+tasks.register('buildRelease') {
+    description 'Build the release APK, copy it to ~/tmp, and bump BUILD_NUMBER for next time.'
+    dependsOn 'assembleRelease'
+    doLast {
+        def apkName = "shiroikuma-hogu_${forkVersionName}_arm64-v8a.apk"
+        def outputDir = layout.buildDirectory.dir("outputs/apk/release").get().asFile
+        def targetDir = new File(System.getProperty("user.home"), "tmp")
+        targetDir.mkdirs()
+        def apk = outputDir.listFiles({ File dir, String name -> name.endsWith(".apk") } as FilenameFilter)?.find { true }
+        if (apk == null) {
+            throw new GradleException("No APK found in ${outputDir}")
+        }
+        def targetFile = new File(targetDir, apkName)
+        java.nio.file.Files.copy(apk.toPath(), targetFile.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        println("\u001b[1;36m>>> ${targetFile.absolutePath}\u001b[0m")
+        println("\u001b[1;36m>>> versionCode ${forkVersionCode}\u001b[0m")
+
+        // Auto-increment BUILD_NUMBER for the next build.
+        def propsFile = rootProject.file("gradle.properties")
+        def currentBuildNumber = project.property("BUILD_NUMBER").toString().toInteger()
+        def nextBuildNumber = currentBuildNumber + 1
+        propsFile.text = propsFile.text.replace(
+                "BUILD_NUMBER=${currentBuildNumber}",
+                "BUILD_NUMBER=${nextBuildNumber}")
+        println("\u001b[1;36m>>> BUILD_NUMBER bumped to ${nextBuildNumber}\u001b[0m")
+    }
 }
