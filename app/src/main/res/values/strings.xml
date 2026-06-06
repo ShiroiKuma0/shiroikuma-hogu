@@ -10,6 +10,7 @@
     <string name="hogu_section_entries">Vault entries</string>
     <string name="hogu_app_theme">App theme</string>
     <string name="hogu_accent_color">Primary / accent colour</string>
+    <string name="hogu_text_color">Text colour</string>
     <string name="hogu_element_issuer">Issuer</string>
     <string name="hogu_element_account">Account name</string>
     <string name="hogu_element_code">OTP code</string>

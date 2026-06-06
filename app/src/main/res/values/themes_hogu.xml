@@ -1,0 +1,263 @@
+<resources>
+    <!-- AUTO-GENERATED: 白い熊 防具 exact-swatch accent/text overlays (one per palette colour). -->
+    <style name="ThemeOverlay.Hogu.Accent.Yellow" parent="">
+        <item name="colorPrimary">#FFFFFF00</item>
+        <item name="colorPrimaryContainer">#FFFFFF00</item>
+        <item name="colorPrimaryInverse">#FFFFFF00</item>
+        <item name="colorPrimaryFixed">#FFFFFF00</item>
+        <item name="colorPrimaryFixedDim">#FFFFFF00</item>
+        <item name="colorSecondary">#FFFFFF00</item>
+        <item name="colorSecondaryContainer">#FFFFFF00</item>
+        <item name="colorTertiary">#FFFFFF00</item>
+        <item name="colorTertiaryContainer">#FFFFFF00</item>
+        <item name="colorPrimaryAlternative">#FFFFFF00</item>
+        <item name="colorProgressbar">#FFFFFF00</item>
+        <item name="colorCode">#FFFFFF00</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.White" parent="">
+        <item name="colorPrimary">#FFFFFFFF</item>
+        <item name="colorPrimaryContainer">#FFFFFFFF</item>
+        <item name="colorPrimaryInverse">#FFFFFFFF</item>
+        <item name="colorPrimaryFixed">#FFFFFFFF</item>
+        <item name="colorPrimaryFixedDim">#FFFFFFFF</item>
+        <item name="colorSecondary">#FFFFFFFF</item>
+        <item name="colorSecondaryContainer">#FFFFFFFF</item>
+        <item name="colorTertiary">#FFFFFFFF</item>
+        <item name="colorTertiaryContainer">#FFFFFFFF</item>
+        <item name="colorPrimaryAlternative">#FFFFFFFF</item>
+        <item name="colorProgressbar">#FFFFFFFF</item>
+        <item name="colorCode">#FFFFFFFF</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Orange" parent="">
+        <item name="colorPrimary">#FFFF9500</item>
+        <item name="colorPrimaryContainer">#FFFF9500</item>
+        <item name="colorPrimaryInverse">#FFFF9500</item>
+        <item name="colorPrimaryFixed">#FFFF9500</item>
+        <item name="colorPrimaryFixedDim">#FFFF9500</item>
+        <item name="colorSecondary">#FFFF9500</item>
+        <item name="colorSecondaryContainer">#FFFF9500</item>
+        <item name="colorTertiary">#FFFF9500</item>
+        <item name="colorTertiaryContainer">#FFFF9500</item>
+        <item name="colorPrimaryAlternative">#FFFF9500</item>
+        <item name="colorProgressbar">#FFFF9500</item>
+        <item name="colorCode">#FFFF9500</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Red" parent="">
+        <item name="colorPrimary">#FFFF3B30</item>
+        <item name="colorPrimaryContainer">#FFFF3B30</item>
+        <item name="colorPrimaryInverse">#FFFF3B30</item>
+        <item name="colorPrimaryFixed">#FFFF3B30</item>
+        <item name="colorPrimaryFixedDim">#FFFF3B30</item>
+        <item name="colorSecondary">#FFFF3B30</item>
+        <item name="colorSecondaryContainer">#FFFF3B30</item>
+        <item name="colorTertiary">#FFFF3B30</item>
+        <item name="colorTertiaryContainer">#FFFF3B30</item>
+        <item name="colorPrimaryAlternative">#FFFF3B30</item>
+        <item name="colorProgressbar">#FFFF3B30</item>
+        <item name="colorCode">#FFFF3B30</item>
+        <item name="colorOnPrimary">#FFFFFFFF</item>
+        <item name="colorOnPrimaryContainer">#FFFFFFFF</item>
+        <item name="colorOnPrimaryFixed">#FFFFFFFF</item>
+        <item name="colorOnPrimaryFixedVariant">#FFFFFFFF</item>
+        <item name="colorOnSecondary">#FFFFFFFF</item>
+        <item name="colorOnSecondaryContainer">#FFFFFFFF</item>
+        <item name="colorOnTertiary">#FFFFFFFF</item>
+        <item name="colorOnTertiaryContainer">#FFFFFFFF</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Pink" parent="">
+        <item name="colorPrimary">#FFFF2D95</item>
+        <item name="colorPrimaryContainer">#FFFF2D95</item>
+        <item name="colorPrimaryInverse">#FFFF2D95</item>
+        <item name="colorPrimaryFixed">#FFFF2D95</item>
+        <item name="colorPrimaryFixedDim">#FFFF2D95</item>
+        <item name="colorSecondary">#FFFF2D95</item>
+        <item name="colorSecondaryContainer">#FFFF2D95</item>
+        <item name="colorTertiary">#FFFF2D95</item>
+        <item name="colorTertiaryContainer">#FFFF2D95</item>
+        <item name="colorPrimaryAlternative">#FFFF2D95</item>
+        <item name="colorProgressbar">#FFFF2D95</item>
+        <item name="colorCode">#FFFF2D95</item>
+        <item name="colorOnPrimary">#FFFFFFFF</item>
+        <item name="colorOnPrimaryContainer">#FFFFFFFF</item>
+        <item name="colorOnPrimaryFixed">#FFFFFFFF</item>
+        <item name="colorOnPrimaryFixedVariant">#FFFFFFFF</item>
+        <item name="colorOnSecondary">#FFFFFFFF</item>
+        <item name="colorOnSecondaryContainer">#FFFFFFFF</item>
+        <item name="colorOnTertiary">#FFFFFFFF</item>
+        <item name="colorOnTertiaryContainer">#FFFFFFFF</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Cyan" parent="">
+        <item name="colorPrimary">#FF00E5FF</item>
+        <item name="colorPrimaryContainer">#FF00E5FF</item>
+        <item name="colorPrimaryInverse">#FF00E5FF</item>
+        <item name="colorPrimaryFixed">#FF00E5FF</item>
+        <item name="colorPrimaryFixedDim">#FF00E5FF</item>
+        <item name="colorSecondary">#FF00E5FF</item>
+        <item name="colorSecondaryContainer">#FF00E5FF</item>
+        <item name="colorTertiary">#FF00E5FF</item>
+        <item name="colorTertiaryContainer">#FF00E5FF</item>
+        <item name="colorPrimaryAlternative">#FF00E5FF</item>
+        <item name="colorProgressbar">#FF00E5FF</item>
+        <item name="colorCode">#FF00E5FF</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Green" parent="">
+        <item name="colorPrimary">#FF00E676</item>
+        <item name="colorPrimaryContainer">#FF00E676</item>
+        <item name="colorPrimaryInverse">#FF00E676</item>
+        <item name="colorPrimaryFixed">#FF00E676</item>
+        <item name="colorPrimaryFixedDim">#FF00E676</item>
+        <item name="colorSecondary">#FF00E676</item>
+        <item name="colorSecondaryContainer">#FF00E676</item>
+        <item name="colorTertiary">#FF00E676</item>
+        <item name="colorTertiaryContainer">#FF00E676</item>
+        <item name="colorPrimaryAlternative">#FF00E676</item>
+        <item name="colorProgressbar">#FF00E676</item>
+        <item name="colorCode">#FF00E676</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Blue" parent="">
+        <item name="colorPrimary">#FF40A9FF</item>
+        <item name="colorPrimaryContainer">#FF40A9FF</item>
+        <item name="colorPrimaryInverse">#FF40A9FF</item>
+        <item name="colorPrimaryFixed">#FF40A9FF</item>
+        <item name="colorPrimaryFixedDim">#FF40A9FF</item>
+        <item name="colorSecondary">#FF40A9FF</item>
+        <item name="colorSecondaryContainer">#FF40A9FF</item>
+        <item name="colorTertiary">#FF40A9FF</item>
+        <item name="colorTertiaryContainer">#FF40A9FF</item>
+        <item name="colorPrimaryAlternative">#FF40A9FF</item>
+        <item name="colorProgressbar">#FF40A9FF</item>
+        <item name="colorCode">#FF40A9FF</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Purple" parent="">
+        <item name="colorPrimary">#FFB388FF</item>
+        <item name="colorPrimaryContainer">#FFB388FF</item>
+        <item name="colorPrimaryInverse">#FFB388FF</item>
+        <item name="colorPrimaryFixed">#FFB388FF</item>
+        <item name="colorPrimaryFixedDim">#FFB388FF</item>
+        <item name="colorSecondary">#FFB388FF</item>
+        <item name="colorSecondaryContainer">#FFB388FF</item>
+        <item name="colorTertiary">#FFB388FF</item>
+        <item name="colorTertiaryContainer">#FFB388FF</item>
+        <item name="colorPrimaryAlternative">#FFB388FF</item>
+        <item name="colorProgressbar">#FFB388FF</item>
+        <item name="colorCode">#FFB388FF</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Accent.Grey" parent="">
+        <item name="colorPrimary">#FFBDBDBD</item>
+        <item name="colorPrimaryContainer">#FFBDBDBD</item>
+        <item name="colorPrimaryInverse">#FFBDBDBD</item>
+        <item name="colorPrimaryFixed">#FFBDBDBD</item>
+        <item name="colorPrimaryFixedDim">#FFBDBDBD</item>
+        <item name="colorSecondary">#FFBDBDBD</item>
+        <item name="colorSecondaryContainer">#FFBDBDBD</item>
+        <item name="colorTertiary">#FFBDBDBD</item>
+        <item name="colorTertiaryContainer">#FFBDBDBD</item>
+        <item name="colorPrimaryAlternative">#FFBDBDBD</item>
+        <item name="colorProgressbar">#FFBDBDBD</item>
+        <item name="colorCode">#FFBDBDBD</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorOnPrimaryContainer">#FF000000</item>
+        <item name="colorOnPrimaryFixed">#FF000000</item>
+        <item name="colorOnPrimaryFixedVariant">#FF000000</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        <item name="colorOnSecondaryContainer">#FF000000</item>
+        <item name="colorOnTertiary">#FF000000</item>
+        <item name="colorOnTertiaryContainer">#FF000000</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Yellow" parent="">
+        <item name="colorOnSurface">#FFFFFF00</item>
+        <item name="colorOnSurfaceVariant">#FFFFFF00</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.White" parent="">
+        <item name="colorOnSurface">#FFFFFFFF</item>
+        <item name="colorOnSurfaceVariant">#FFFFFFFF</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Orange" parent="">
+        <item name="colorOnSurface">#FFFF9500</item>
+        <item name="colorOnSurfaceVariant">#FFFF9500</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Red" parent="">
+        <item name="colorOnSurface">#FFFF3B30</item>
+        <item name="colorOnSurfaceVariant">#FFFF3B30</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Pink" parent="">
+        <item name="colorOnSurface">#FFFF2D95</item>
+        <item name="colorOnSurfaceVariant">#FFFF2D95</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Cyan" parent="">
+        <item name="colorOnSurface">#FF00E5FF</item>
+        <item name="colorOnSurfaceVariant">#FF00E5FF</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Green" parent="">
+        <item name="colorOnSurface">#FF00E676</item>
+        <item name="colorOnSurfaceVariant">#FF00E676</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Blue" parent="">
+        <item name="colorOnSurface">#FF40A9FF</item>
+        <item name="colorOnSurfaceVariant">#FF40A9FF</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Purple" parent="">
+        <item name="colorOnSurface">#FFB388FF</item>
+        <item name="colorOnSurfaceVariant">#FFB388FF</item>
+    </style>
+    <style name="ThemeOverlay.Hogu.Text.Grey" parent="">
+        <item name="colorOnSurface">#FFBDBDBD</item>
+        <item name="colorOnSurfaceVariant">#FFBDBDBD</item>
+    </style>
+</resources>

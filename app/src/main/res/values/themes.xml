@@ -181,9 +181,10 @@
         <item name="colorSurfaceContainerLowest">#000000</item>
         <item name="colorSurfaceDim">#000000</item>
         <item name="colorSurfaceBright">#000000</item>
-        <item name="colorCode">@android:color/white</item>
+        <!-- 白い熊 防具: OTP code (when left on "Default") and the progress bar follow the accent. -->
+        <item name="colorCode">?attr/colorPrimary</item>
         <item name="colorCodeHidden">#2F2F2F</item>
-        <item name="colorProgressbar">@android:color/white</item>
+        <item name="colorProgressbar">?attr/colorPrimary</item>
     </style>
 
     <style name="Theme.Aegis.Light" parent="Base.Theme.Aegis.Light">

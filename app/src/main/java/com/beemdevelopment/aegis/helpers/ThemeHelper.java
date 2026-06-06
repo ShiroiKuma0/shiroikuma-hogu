@@ -29,14 +29,28 @@ public class ThemeHelper {
         int theme = themeMap.get(getConfiguredTheme());
         _activity.setTheme(theme);
 
-        if (_prefs.isDynamicColorsEnabled()) {
+        // 白い熊 防具: apply the chosen accent + text colours as EXACT static overlays (one pre-baked
+        // overlay per palette swatch — see HoguPalette / res/values/themes_hogu.xml). Material3 only
+        // applies exact colours from a fixed compile-time set, so the configurable foundation colours
+        // are a curated swatch palette: accent recolours every accent role; text recolours body text +
+        // toolbar titles (colorOnSurface / onSurfaceVariant). Surfaces stay black from the base theme.
+        HoguPalette.Swatch accent = HoguPalette.find(HoguTheme.getColor(_activity, HoguTheme.KEY_ACCENT));
+        if (accent != null) {
+            _activity.getTheme().applyStyle(accent.accentOverlay, true);
+        }
+        HoguPalette.Swatch text = HoguPalette.find(HoguTheme.getColor(_activity, HoguTheme.KEY_TEXT));
+        if (text != null) {
+            _activity.getTheme().applyStyle(text.textOverlay, true);
+        }
+
+        // Stock wallpaper-based dynamic colours remain available only when no swatch accent is set.
+        if (accent == null && _prefs.isDynamicColorsEnabled()) {
             DynamicColorsOptions.Builder optsBuilder = new DynamicColorsOptions.Builder();
             if (getConfiguredTheme().equals(Theme.AMOLED)) {
                 optsBuilder.setThemeOverlay(R.style.ThemeOverlay_Aegis_Dynamic_Amoled);
             } else if (getConfiguredTheme().equals(Theme.DARK)) {
                 optsBuilder.setThemeOverlay(R.style.ThemeOverlay_Aegis_Dynamic_Dark);
             }
-
             DynamicColors.applyToActivityIfAvailable(_activity, optsBuilder.build());
         }
     }

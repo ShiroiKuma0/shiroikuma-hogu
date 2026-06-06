@@ -24,7 +24,7 @@ import com.beemdevelopment.aegis.Theme;
 import com.beemdevelopment.aegis.helpers.FontUtil;
 import com.beemdevelopment.aegis.helpers.HoguTheme;
 import com.beemdevelopment.aegis.helpers.ViewHelper;
-import com.beemdevelopment.aegis.ui.dialogs.HoguColorPickerDialog;
+import com.beemdevelopment.aegis.ui.dialogs.HoguSwatchPickerDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.IOException;
@@ -99,6 +99,8 @@ public class HoguUiActivity extends AegisActivity {
         addThemeRow(1);
         addColorRow(getString(R.string.hogu_accent_color), HoguTheme.KEY_ACCENT,
                 com.google.android.material.R.attr.colorPrimary, 1);
+        addColorRow(getString(R.string.hogu_text_color), HoguTheme.KEY_TEXT,
+                com.google.android.material.R.attr.colorOnSurface, 1);
 
         addSection(getString(R.string.hogu_section_entries));
         addTextElement(getString(R.string.hogu_element_issuer), FontUtil.ISSUER, HoguTheme.KEY_COLOR_ISSUER,
@@ -267,17 +269,27 @@ public class HoguUiActivity extends AegisActivity {
     // region Pickers
 
     private void openColorPicker(CharSequence title, String key, @AttrRes int attrFallback) {
-        int initial = HoguTheme.resolve(_holder, key, attrFallback);
-        HoguColorPickerDialog.show(this, title, initial, new HoguColorPickerDialog.Listener() {
+        int current = HoguTheme.getColor(this, key);
+        HoguSwatchPickerDialog.show(this, title, current, new HoguSwatchPickerDialog.Listener() {
             @Override public void onColor(int color) {
                 HoguTheme.setColor(HoguUiActivity.this, key, color);
-                buildRows();
+                refreshAfterColorChange(key);
             }
             @Override public void onReset() {
                 HoguTheme.setColor(HoguUiActivity.this, key, HoguTheme.UNSET);
-                buildRows();
+                refreshAfterColorChange(key);
             }
         });
+    }
+
+    private void refreshAfterColorChange(String key) {
+        if (key.equals(HoguTheme.KEY_ACCENT) || key.equals(HoguTheme.KEY_TEXT)) {
+            // Accent + text drive the whole Material3 palette (see ThemeHelper), so recreate the
+            // activity to re-theme this page's own chrome immediately too.
+            recreate();
+        } else {
+            buildRows();
+        }
     }
 
     private void openThemePicker() {
