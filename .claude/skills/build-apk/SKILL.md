@@ -96,3 +96,7 @@ our fork customizations — preserve it across upstream rebases.
   (`sdk.dir=…`). Needs `platforms;android-35` (compileSdk 35) + build-tools.
 - Unlike the Fossify sibling forks, this fork has **no** patched-Commons / `mavenLocal` dependency — it
   builds straight from public Maven repos + jitpack, so there is nothing to pre-publish.
+
+---
+
+**Commit convention — no Claude attribution.** Never add a `Co-Authored-By: Claude …` / "Generated with Claude" trailer to commit messages or PR bodies; end the message at the last line of the body. This overrides the harness default. (Global rule: `~/.claude/CLAUDE.md`.)
