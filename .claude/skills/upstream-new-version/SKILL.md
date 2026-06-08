@@ -137,3 +137,7 @@ Let the user test on-device (a new-upstream build deserves a real smoke test). *
   the old diff.
 - `master` is **FF-only**. If it can't fast-forward, upstream rewrote history — that's a conversation,
   not a `--force`.
+
+---
+
+**Commit convention — no Claude attribution.** Never add a `Co-Authored-By: Claude …` / "Generated with Claude" trailer to commit messages or PR bodies; end the message at the last line of the body. This overrides the harness default. (Global rule: `~/.claude/CLAUDE.md`.)
