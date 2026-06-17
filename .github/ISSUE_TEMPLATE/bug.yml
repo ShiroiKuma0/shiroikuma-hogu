@@ -5,12 +5,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please read the [bug reports section of the contribution guidelines](https://github.com/beemdevelopment/Aegis/blob/master/CONTRIBUTING.md#bug-reports) before submitting an issue.
+        Please search the existing issues to make sure this is not a duplicate before submitting.
   - type: input
     id: version
     attributes:
       label: Version
-      description: Which version of Aegis are you using?
+      description: Which version of 白い熊 防具 are you using?
       placeholder: "Example: v2.1"
     validations:
       required: true
@@ -18,7 +18,7 @@ body:
     id: source
     attributes:
       label: Source
-      description: Where did you get Aegis from?
+      description: Where did you get 白い熊 防具 from?
       options:
         - Google Play
         - F-Droid
@@ -30,7 +30,7 @@ body:
     id: encryption
     attributes:
       label: Vault encryption
-      description: Do you have encryption enabled for your Aegis vault?
+      description: Do you have encryption enabled for your 白い熊 防具 vault?
       options:
         - "Yes (with biometric unlock)"
         - "Yes"
@@ -41,7 +41,7 @@ body:
     id: device
     attributes:
       label: Device
-      description: Which device are you using Aegis on?
+      description: Which device are you using 白い熊 防具 on?
       placeholder: "Example: Pixel 5"
     validations:
       required: true
