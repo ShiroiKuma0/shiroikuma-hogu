@@ -1,6 +1,6 @@
 ---
 name: upstream-new-version
-description: Rebase our fork onto a new upstream release of beemdevelopment/Aegis. Fast-forward the `master` mirror to the new release, replay our `custom` customizations on top of it, reset the version base + build counter, and produce a fresh +1 build via the build-apk skill (never auto-deploying). Use when the user says a new upstream Aegis version is out, runs /upstream-new-version, asks to update/sync to upstream, bump to the new Aegis release, or rebase custom onto the latest upstream.
+description: Rebase our fork onto a new upstream release of beemdevelopment/Aegis. Fast-forward the `master` mirror to the new release, replay our `custom` customizations on top of it, reset the version base + build counter, and produce a fresh +1 build via the build-apk skill (which auto-delivers the APK via /after-build — adb push if a phone is connected, else scp to skhw). Use when the user says a new upstream Aegis version is out, runs /upstream-new-version, asks to update/sync to upstream, bump to the new Aegis release, or rebase custom onto the latest upstream.
 ---
 
 # Rebase the 白い熊 防具 fork onto a new upstream Aegis release
@@ -115,8 +115,8 @@ the load-bearing edit for side-by-side install — double-check it didn't revert
 
 Invoke the **build-apk** skill (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew buildRelease <
 /dev/null`). This is the first build of the new line (`<newVersion>+1`). build-apk bumps the counter,
-stamps the version, copies the APK to `~/tmp`, and then **asks** before any `adb push`. Do not deploy on
-your own.
+stamps the version, copies the APK to `~/tmp`, and then **delivers it automatically via `/after-build`**
+(adb push if a phone is connected, else scp to skhw — no prompt).
 
 ### 9. Stop, test, confirm, push
 
