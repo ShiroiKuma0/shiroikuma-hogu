@@ -2,6 +2,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="fab_menu_item_image_size">24dp</dimen>
     <dimen name="list_item_height">48dp</dimen>
-    <dimen name="hogu_indent_step">24dp</dimen>
-    <dimen name="hogu_row_base_padding">16dp</dimen>
+    <!-- 白い熊 防具 UI page indents — the kxkb settings ladder: sections at 36dp, sub-sections at 54dp,
+         rows under a section at 72dp, rows under a sub-section at 90dp. -->
+    <dimen name="hogu_indent_base">36dp</dimen>
+    <dimen name="hogu_indent_step">18dp</dimen>
 </resources>

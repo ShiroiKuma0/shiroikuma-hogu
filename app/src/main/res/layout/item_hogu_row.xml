@@ -1,24 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 白い熊 防具 UI page item row (the kxkb settings look): indented under its section, tight vertical
+     padding, accent text, an optional second summary line. Everything after the label is optional —
+     a value, a right-hand text action ("Regenerate"), a colour swatch or a switch. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:minHeight="48dp"
+    android:minHeight="0dp"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
     android:paddingStart="0dp"
     android:paddingEnd="16dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp">
 
-    <TextView
-        android:id="@+id/hogu_row_label"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="16sp" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/hogu_row_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/hogu_row_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/hogu_row_value"
@@ -29,11 +45,36 @@
         android:textColor="?attr/colorPrimary"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/hogu_row_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingStart="12dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:textSize="14sp"
+        android:textColor="?attr/colorPrimary"
+        android:visibility="gone" />
+
     <View
         android:id="@+id/hogu_row_swatch"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="8dp"
+        android:visibility="gone" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/hogu_row_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:clickable="false"
+        android:focusable="false"
         android:visibility="gone" />
 
 </LinearLayout>
