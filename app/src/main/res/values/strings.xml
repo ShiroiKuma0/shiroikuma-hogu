@@ -29,6 +29,67 @@
     <string name="hogu_font_import_failed">Could not import font</string>
     <string name="hogu_font_imported">Imported %s</string>
 
+    <!-- 白い熊 防具 UI page — Export / Import section -->
+    <string name="hogu_section_eximport">Export / Import</string>
+    <string name="hogu_eim_open">Export / Import…</string>
+    <string name="hogu_eim_open_desc">Back up or restore everything this app holds, one category at a time</string>
+    <string name="hogu_eim_dir_row">Backup directory</string>
+    <string name="hogu_eim_dir_unset">Not set</string>
+    <string name="hogu_eim_title">Export / Import</string>
+    <string name="hogu_eim_desc">Tick what to carry. Export writes one .zip; Import applies the ticked categories the chosen .zip contains.</string>
+    <string name="hogu_eim_dir">Backup directory</string>
+    <string name="hogu_eim_select_all">Select all</string>
+    <string name="hogu_eim_cancel">Cancel</string>
+    <string name="hogu_eim_import">Import</string>
+    <string name="hogu_eim_export">Export</string>
+    <string name="hogu_eim_warn_nodir">No backup directory set.</string>
+    <string name="hogu_eim_warn_none">No backup in this directory yet.</string>
+    <string name="hogu_eim_last">Last export: %s</string>
+    <string name="hogu_eim_none_selected">No categories selected.</string>
+    <string name="hogu_eim_exporting">Exporting…</string>
+    <string name="hogu_eim_importing">Importing…</string>
+    <string name="hogu_eim_export_done_title">Export finished</string>
+    <string name="hogu_eim_export_done_body">%1$s\n%2$s · %3$d categories</string>
+    <string name="hogu_eim_export_done_body_nosize">%1$s\n%2$d categories</string>
+    <string name="hogu_eim_export_fail">Export failed: %s</string>
+    <string name="hogu_eim_import_done_title">Import finished</string>
+    <string name="hogu_eim_import_done_body">%s\n\nRestart the app for everything to take effect.</string>
+    <string name="hogu_eim_import_fail">Import failed: %s</string>
+    <string name="hogu_eim_import_none">not a 白い熊 防具 backup</string>
+    <string name="hogu_eim_import_nothing">nothing imported</string>
+    <string name="hogu_eim_restart_later">Later</string>
+    <string name="hogu_eim_restart_now">Restart now</string>
+    <string name="hogu_eim_vault_warn_title">Replace the vault?</string>
+    <string name="hogu_eim_vault_warn_body">Importing the vault replaces every entry on this device with the backup\'s — and its password becomes the backup\'s password. Untick “Vault” to keep the current one.</string>
+    <string name="hogu_eim_vault_warn_proceed">Replace</string>
+
+    <!-- Export / Import categories (the ids are the automation contract's `items` values) -->
+    <string name="hogu_eim_cat_ui" translatable="false">白い熊 防具 UI</string>
+    <string name="hogu_eim_cat_ui_fonts">Imported fonts</string>
+    <string name="hogu_eim_cat_settings">App settings</string>
+    <string name="hogu_eim_cat_settings_appearance">Appearance</string>
+    <string name="hogu_eim_cat_settings_behavior">Behaviour</string>
+    <string name="hogu_eim_cat_settings_security">Security</string>
+    <string name="hogu_eim_cat_settings_backups">Backups</string>
+    <string name="hogu_eim_cat_vault">Vault (entries, groups, icons)</string>
+    <string name="hogu_eim_cat_vault_usage">Usage statistics</string>
+    <string name="hogu_eim_cat_iconpacks">Icon packs</string>
+
+    <!-- 保存復元 automation (the sister-app state-export contract) -->
+    <string name="hogu_auto_switch">Automation export</string>
+    <string name="hogu_auto_switch_desc">Let sister-app tasks trigger this app\'s export through the token-gated intent</string>
+    <string name="hogu_auto_no_storage">Grant All-files access so automation can write to the folder it asks for</string>
+    <string name="hogu_auto_token">Automation token</string>
+    <string name="hogu_auto_token_copied">Token copied to the clipboard</string>
+    <string name="hogu_auto_token_regenerate">Regenerate</string>
+    <string name="hogu_auto_token_regen_title">Regenerate the token?</string>
+    <string name="hogu_auto_token_regen_msg">Every copy already pasted into another app stops working and must be replaced with the new token.</string>
+    <string name="hogu_auto_token_regenerated">New token generated — update the copies you pasted elsewhere</string>
+    <string name="hogu_auto_storage_title">All-files access</string>
+    <string name="hogu_auto_storage_msg">Automation may ask this app to write its backup into a shared folder (so every sister app\'s backups land together). That needs All-files access. Without it, exports still go to the backup directory set above.</string>
+    <string name="hogu_auto_storage_open">Open settings</string>
+    <string name="hogu_auto_storage_skip">Not now</string>
+
     <string name="action_settings">Settings</string>
     <string name="action_about">About</string>
     <string name="action_delete">Delete</string>

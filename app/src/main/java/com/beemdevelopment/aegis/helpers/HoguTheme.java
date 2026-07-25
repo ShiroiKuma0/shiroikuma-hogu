@@ -66,6 +66,17 @@ public final class HoguTheme {
         return c != UNSET ? c : MaterialColors.getColor(view, attr);
     }
 
+    /** Context-based {@link #resolve(View, String, int)}, for views that don't exist yet. */
+    public static int resolve(Context ctx, String key, @AttrRes int attr) {
+        int c = getColor(ctx, key);
+        return c != UNSET ? c : resolveAttr(ctx, attr, 0);
+    }
+
+    /** The themed colour behind {@code attr}, or {@code fallback} when the theme doesn't carry it. */
+    public static int resolveAttr(Context ctx, @AttrRes int attr, int fallback) {
+        return MaterialColors.getColor(ctx, attr, fallback);
+    }
+
     /** A circular swatch drawable filled with the given colour, for colour previews. */
     public static GradientDrawable swatch(int color) {
         GradientDrawable d = new GradientDrawable();

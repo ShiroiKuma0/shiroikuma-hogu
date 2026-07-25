@@ -85,6 +85,11 @@ public final class FontUtil {
         prefs(ctx).edit().putInt(SIZE_PREFIX + cat, sizeSp).apply();
     }
 
+    /** Drops the resolved-typeface cache — used after an import swaps the font files underneath. */
+    public static void invalidateCache() {
+        _cache.clear();
+    }
+
     /** Resolves a font name to a Typeface, or {@code null} for the inherit/"Default" sentinel. */
     public static Typeface getTypefaceByName(Context ctx, String name) {
         if (name == null || name.isEmpty() || name.equals(DEFAULT)) {
