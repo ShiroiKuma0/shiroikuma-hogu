@@ -57,10 +57,14 @@ is simply *there* — and the row glares **red** until you set one.
 can sweep the whole sister-app fleet in a single task and collect the results.
 
 - **`LIST_CATEGORIES`** enumerates what this app can export, sub-options and all, so the caller can
-  render a picker.
+  render a picker — and says for each one **whether it starts ticked**, the same defaults the
+  in-app sheet opens on.
 - **`EXPORT_STATE`** writes exactly one ZIP — to a directory the caller names, or to the one
   configured in-app — and replies with the absolute path, the real byte count, a human-readable
   size, and how many categories went in.
+- **`CANCEL_EXPORT`** stops a running export at the next entry boundary and **deletes the
+  half-written archive**, so a cancelled run leaves the backup folder exactly as it found it. Safe
+  to send at any time: with nothing running it is a silent no-op.
 - **Progress reports real numbers**, never a percentage: `区分 3/10 — Vault`, throttled to one
   update every 500 ms.
 

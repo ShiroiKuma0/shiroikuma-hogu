@@ -167,20 +167,24 @@ public class HoguExportImportDialog {
 
         root.addView(divider());
 
+        // Every box starts from the category's own default — the same answer the automation
+        // contract's LIST_CATEGORIES reports as its fourth `on|off` field, so the in-app sheet and
+        // a caller's picker open on exactly the same selection. "Select all" is only pre-ticked
+        // when the default really is everything.
         CheckBox selectAll = checkbox(_activity.getString(R.string.hogu_eim_select_all), true, 0);
-        selectAll.setChecked(true);
+        selectAll.setChecked(HoguExport.Cat.defaults().size() == HoguExport.Cat.values().length);
         root.addView(selectAll);
 
         for (HoguExport.Cat cat : HoguExport.topLevel()) {
             CheckBox parent = checkbox(_activity.getString(cat.getLabelRes()), false, 1);
-            parent.setChecked(true);
+            parent.setChecked(cat.isDefaultSelected());
             _checks.put(cat, parent);
             root.addView(parent);
 
             List<HoguExport.Cat> children = HoguExport.childrenOf(cat);
             for (HoguExport.Cat child : children) {
                 CheckBox cb = checkbox(_activity.getString(child.getLabelRes()), false, 2);
-                cb.setChecked(true);
+                cb.setChecked(child.isDefaultSelected());
                 _checks.put(child, cb);
                 root.addView(cb);
             }
