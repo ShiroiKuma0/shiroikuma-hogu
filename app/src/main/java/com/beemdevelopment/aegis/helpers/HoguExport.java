@@ -95,6 +95,11 @@ public final class HoguExport {
      * exactly the id accepted in the automation contract's {@code items} extra. A category with a
      * {@code parentId} is a sub-option of that parent; a parent selected <i>without</i> its children
      * means "that category's own data only".
+     *
+     * <p>{@code defaultSelected} is this app's answer to "does this item start ticked?" — the
+     * contract's fourth {@code LIST_CATEGORIES} field ({@code on}/{@code off}, absent = {@code on}).
+     * It is the app's decision to state, not the caller's to guess, and it seeds both the caller's
+     * picker and this app's own Export/Import sheet from the same source.
      */
     public enum Cat {
         UI("ui", R.string.hogu_eim_cat_ui, null),
@@ -105,17 +110,25 @@ public final class HoguExport {
         SETTINGS_SECURITY("settings.security", R.string.hogu_eim_cat_settings_security, "settings"),
         SETTINGS_BACKUPS("settings.backups", R.string.hogu_eim_cat_settings_backups, "settings"),
         VAULT("vault", R.string.hogu_eim_cat_vault, null),
-        VAULT_USAGE("vault.usage", R.string.hogu_eim_cat_vault_usage, "vault"),
+        // Derived counters — rebuilt simply by using the app, so this one starts unticked. The
+        // vault itself stays on.
+        VAULT_USAGE("vault.usage", R.string.hogu_eim_cat_vault_usage, "vault", false),
         ICON_PACKS("iconpacks", R.string.hogu_eim_cat_iconpacks, null);
 
         private final String _id;
         @StringRes private final int _labelRes;
         @Nullable private final String _parentId;
+        private final boolean _defaultSelected;
 
         Cat(String id, @StringRes int labelRes, @Nullable String parentId) {
+            this(id, labelRes, parentId, true);
+        }
+
+        Cat(String id, @StringRes int labelRes, @Nullable String parentId, boolean defaultSelected) {
             _id = id;
             _labelRes = labelRes;
             _parentId = parentId;
+            _defaultSelected = defaultSelected;
         }
 
         public String getId() {
@@ -136,6 +149,11 @@ public final class HoguExport {
             return _parentId != null;
         }
 
+        /** Whether this category starts ticked — the {@code on}/{@code off} field of the contract. */
+        public boolean isDefaultSelected() {
+            return _defaultSelected;
+        }
+
         @Nullable
         public static Cat byId(String id) {
             for (Cat c : values()) {
@@ -148,6 +166,20 @@ public final class HoguExport {
 
         public static Set<Cat> all() {
             return new LinkedHashSet<>(Arrays.asList(values()));
+        }
+
+        /**
+         * The default set: every category that starts ticked. This is what an {@code EXPORT_STATE}
+         * with no {@code items} extra exports.
+         */
+        public static Set<Cat> defaults() {
+            Set<Cat> out = new LinkedHashSet<>();
+            for (Cat c : values()) {
+                if (c._defaultSelected) {
+                    out.add(c);
+                }
+            }
+            return out;
         }
     }
 
@@ -296,14 +328,40 @@ public final class HoguExport {
     }
 
     /**
+     * Cancellation signal, polled at every entry boundary — the contract's {@code CANCEL_EXPORT}
+     * ({@link com.beemdevelopment.aegis.receivers.StateExportReceiver}). The export unwinds at the
+     * next boundary with a {@link CancelledException}; nothing is ever interrupted mid-{@code write}.
+     */
+    public interface Cancellation {
+        boolean isCancelled();
+    }
+
+    /** Thrown when a {@link Cancellation} fired — the export stopped, its output is incomplete. */
+    public static class CancelledException extends IOException {
+        public CancelledException() {
+            super("cancelled");
+        }
+    }
+
+    public static String export(Context context, Set<Cat> cats, OutputStream out,
+                                @Nullable Progress onProgress) throws IOException, JSONException {
+        return export(context, cats, out, onProgress, null);
+    }
+
+    /**
      * Write a ZIP of the selected categories to {@code out}. Returns a short human summary.
      *
      * <p>The headless export core: the Export/Import panel and
      * {@link com.beemdevelopment.aegis.receivers.StateExportReceiver} are two thin callers of this —
      * no export logic is duplicated anywhere.
+     *
+     * <p>{@code cancel}, when given, is polled before every category and before every file copied
+     * into the archive, so a cancelled run unwinds promptly and at a clean boundary. The caller owns
+     * the half-written output: on {@link CancelledException} it must delete it.
      */
     public static String export(Context context, Set<Cat> cats, OutputStream out,
-                                @Nullable Progress onProgress) throws IOException, JSONException {
+                                @Nullable Progress onProgress, @Nullable Cancellation cancel)
+            throws IOException, JSONException {
         List<Cat> ordered = ordered(cats);
         int total = ordered.size();
         int done = 0;
@@ -324,12 +382,13 @@ public final class HoguExport {
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             for (Cat cat : ordered) {
+                throwIfCancelled(cancel);
                 switch (cat) {
                     case UI:
                         writeEntry(zip, cat.getId() + ".json", exportPrefsMatching(prefs, true, null));
                         break;
                     case UI_FONTS:
-                        writeTree(zip, FontUtil.getFontsDir(context), FONTS_DIR);
+                        writeTree(zip, FontUtil.getFontsDir(context), FONTS_DIR, cancel);
                         break;
                     case SETTINGS:
                         writeEntry(zip, cat.getId() + ".json", exportPrefsMatching(prefs, false, null));
@@ -353,7 +412,7 @@ public final class HoguExport {
                         writeEntry(zip, cat.getId() + ".json", exportPrefsMatching(prefs, false, KEYS_VAULT_USAGE));
                         break;
                     case ICON_PACKS:
-                        writeTree(zip, new File(context.getFilesDir(), "icons"), ICON_PACKS_DIR);
+                        writeTree(zip, new File(context.getFilesDir(), "icons"), ICON_PACKS_DIR, cancel);
                         break;
                 }
                 done++;
@@ -461,15 +520,17 @@ public final class HoguExport {
     }
 
     /** Copy a whole directory tree into the ZIP under {@code prefix}. */
-    private static void writeTree(File dir, ZipOutputStream zip, String prefix, String rel) throws IOException {
+    private static void writeTree(File dir, ZipOutputStream zip, String prefix, String rel,
+                                  @Nullable Cancellation cancel) throws IOException {
         File[] children = dir.listFiles();
         if (children == null) {
             return;
         }
         for (File f : children) {
+            throwIfCancelled(cancel);
             String name = rel.isEmpty() ? f.getName() : rel + "/" + f.getName();
             if (f.isDirectory()) {
-                writeTree(f, zip, prefix, name);
+                writeTree(f, zip, prefix, name, cancel);
             } else if (f.isFile()) {
                 zip.putNextEntry(new ZipEntry(prefix + name));
                 try (InputStream in = new FileInputStream(f)) {
@@ -480,9 +541,16 @@ public final class HoguExport {
         }
     }
 
-    private static void writeTree(ZipOutputStream zip, File dir, String prefix) throws IOException {
+    private static void writeTree(ZipOutputStream zip, File dir, String prefix,
+                                  @Nullable Cancellation cancel) throws IOException {
         if (dir.isDirectory()) {
-            writeTree(dir, zip, prefix, "");
+            writeTree(dir, zip, prefix, "", cancel);
+        }
+    }
+
+    private static void throwIfCancelled(@Nullable Cancellation cancel) throws CancelledException {
+        if (cancel != null && cancel.isCancelled()) {
+            throw new CancelledException();
         }
     }
 
@@ -731,17 +799,20 @@ public final class HoguExport {
         return out;
     }
 
-    /** The {@code LIST_CATEGORIES} reply body: {@code id<TAB>label[<TAB>parent-id]} per line. */
+    /**
+     * The {@code LIST_CATEGORIES} reply body: {@code id<TAB>label<TAB>parent-id<TAB>on|off} per
+     * line. The third field is empty for a top-level category — the fields are positional, so the
+     * {@code on}/{@code off} default must stay the fourth one either way.
+     */
     public static String categoryLines(Context context) {
         StringBuilder sb = new StringBuilder();
         for (Cat c : Cat.values()) {
             if (sb.length() > 0) {
                 sb.append("\n");
             }
-            sb.append(c.getId()).append('\t').append(context.getString(c.getLabelRes()));
-            if (c.getParentId() != null) {
-                sb.append('\t').append(c.getParentId());
-            }
+            sb.append(c.getId()).append('\t').append(context.getString(c.getLabelRes()))
+                    .append('\t').append(c.getParentId() != null ? c.getParentId() : "")
+                    .append('\t').append(c.isDefaultSelected() ? "on" : "off");
         }
         return sb.toString();
     }

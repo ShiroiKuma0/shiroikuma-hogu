@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Fork (白い熊 防具): the sister-app <b>state-export automation contract</b> (保存復元) — the wire shape
@@ -33,12 +34,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>{@code <pkg>.action.EXPORT_STATE}: run the category-ZIP export ({@link HoguExport}) with no
  *       UI. Extras (all String): {@code token} (required), {@code path} (optional absolute directory
  *       — wins over the configured export directory), {@code items} (optional comma list of
- *       {@link HoguExport.Cat} ids; absent/empty = everything), {@code progress_action} (optional),
- *       plus the reply trio {@code reply_action} / {@code reply_package} / {@code reply_id}.</li>
+ *       {@link HoguExport.Cat} ids; absent/empty = this app's default set, i.e. every category the
+ *       listing marks {@code on}), {@code progress_action} (optional), plus the reply trio
+ *       {@code reply_action} / {@code reply_package} / {@code reply_id}.</li>
  *   <li>{@code <pkg>.action.LIST_CATEGORIES}: token-gated, instant category enumeration for the
- *       caller's picker. Lines are {@code id<TAB>label}, with a third {@code parent-id} field on
- *       sub-options.</li>
+ *       caller's picker. Lines are {@code id<TAB>label<TAB>parent-id<TAB>on|off} — the third field
+ *       empty on a top-level item, the fourth this app's answer to "does it start ticked?".</li>
+ *   <li>{@code <pkg>.action.CANCEL_EXPORT}: stop the running export. Extras: {@code token}
+ *       (required, the same gate) and an optional {@code reply_id} (absent = the export running
+ *       now). <b>Fire-and-forget</b> — it is never answered, not even with an error, and arriving
+ *       when nothing is running (or after the export already finished) is a silent no-op. It routes
+ *       through this exported receiver on purpose: a third-party caller cannot reach a
+ *       {@code exported="false"} component, so a stop path hidden on one would be unreachable.</li>
  * </ul>
+ *
+ * <p>A cancelled export leaves the backup directory <b>exactly as it found it</b>: the write loop
+ * unwinds at the next entry boundary (never an interrupted thread, never {@code System.exit}), the
+ * half-written ZIP is deleted, and the original request gets its one terminal reply,
+ * {@code ERROR:cancelled}. The same cleanup runs after any other failure, so no short archive is
+ * ever left behind. This app holds no foreground service and no wakelock for the export — the
+ * broadcast is held open with {@code goAsync()} and released in the same {@code finally}.
  *
  * <p><b>ONE ZIP per request, always</b> — every category is an entry inside the single archive, named
  * {@code shiroikuma-hogu_<yyyy-MM-dd_HH-mm-ss>.zip} (identical to what the Export/Import panel
@@ -65,6 +80,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StateExportReceiver extends BroadcastReceiver {
     public static final String ACTION_EXPORT_STATE = BuildConfig.APPLICATION_ID + ".action.EXPORT_STATE";
     public static final String ACTION_LIST_CATEGORIES = BuildConfig.APPLICATION_ID + ".action.LIST_CATEGORIES";
+    public static final String ACTION_CANCEL_EXPORT = BuildConfig.APPLICATION_ID + ".action.CANCEL_EXPORT";
+
+    /**
+     * The export running right now, or null — static because a {@link BroadcastReceiver} instance is
+     * created per broadcast, so this is how a later {@code CANCEL_EXPORT} reaches a run an earlier
+     * one started. The contract forbids two exports at once; if one somehow arrives anyway, the most
+     * recent run is the cancellable one.
+     */
+    private static final AtomicReference<Run> RUNNING = new AtomicReference<>();
 
     private static final String TAG = "StateExportReceiver";
     private static final long PROGRESS_MIN_INTERVAL_MS = 500;
@@ -123,15 +147,30 @@ public class StateExportReceiver extends BroadcastReceiver {
         };
 
         // Gate first — "disabled" and "bad token" are distinct on purpose (they debug differently).
+        // CANCEL_EXPORT is gated identically, but it is fire-and-forget: a refusal is logged and
+        // never answered, because the action carries no reply of its own.
+        final boolean cancelRequest = ACTION_CANCEL_EXPORT.equals(action);
         if (!AutomationAuth.isEnabled(app)) {
-            reply.send("ERROR:automation disabled");
+            if (cancelRequest) {
+                Log.w(TAG, action + " [" + replyId + "] -> ignored: automation disabled");
+            } else {
+                reply.send("ERROR:automation disabled");
+            }
             return;
         }
         if (!AutomationAuth.isTokenValid(app, token)) {
-            reply.send("ERROR:bad token");
+            if (cancelRequest) {
+                Log.w(TAG, action + " [" + replyId + "] -> ignored: bad token");
+            } else {
+                reply.send("ERROR:bad token");
+            }
             return;
         }
 
+        if (cancelRequest) {
+            cancelRunningExport(replyId);
+            return;
+        }
         if (ACTION_LIST_CATEGORIES.equals(action)) {
             reply.send("OK:" + HoguExport.categoryLines(app));
             return;
@@ -143,7 +182,9 @@ public class StateExportReceiver extends BroadcastReceiver {
 
         final Set<HoguExport.Cat> cats;
         if (items.isEmpty()) {
-            cats = HoguExport.Cat.all();
+            // "No items" means this app's own default set — exactly the categories LIST_CATEGORIES
+            // marks `on`, not blindly everything.
+            cats = HoguExport.Cat.defaults();
         } else {
             Set<HoguExport.Cat> resolved = new LinkedHashSet<>();
             List<String> unknown = new ArrayList<>();
@@ -194,7 +235,14 @@ public class StateExportReceiver extends BroadcastReceiver {
         // The export reads the vault + walks file trees — hold the broadcast open and work off the
         // main thread.
         final PendingResult pending = goAsync();
+        final Run run = new Run(replyId);
+        RUNNING.set(run);
         new Thread(() -> {
+            // Whatever we managed to create, so a cancelled or failed run can take it back out
+            // again — the directory must end up exactly as we found it.
+            File partialFile = null;
+            DocumentFile partialDoc = null;
+            boolean succeeded = false;
             try {
                 // Directory precedence: `path` extra -> configured export directory -> error. Writing
                 // an arbitrary absolute path needs All-Files-Access; without it we may only fall back
@@ -216,8 +264,9 @@ public class StateExportReceiver extends BroadcastReceiver {
                         return;
                     }
                     File file = new File(dir, fileName);
+                    partialFile = file;
                     try (OutputStream out = new FileOutputStream(file)) {
-                        HoguExport.export(app, cats, out, progress);
+                        HoguExport.export(app, cats, out, progress, run.cancelled::get);
                     }
                     bytes = file.length();
                     shownPath = file.getAbsolutePath();
@@ -231,27 +280,77 @@ public class StateExportReceiver extends BroadcastReceiver {
                         reply.send("ERROR:cannot create " + fileName + " in the export directory");
                         return;
                     }
+                    partialDoc = doc;
                     try (OutputStream out = app.getContentResolver().openOutputStream(doc.getUri())) {
                         if (out == null) {
                             reply.send("ERROR:cannot open " + fileName + " for writing");
                             return;
                         }
-                        HoguExport.export(app, cats, out, progress);
+                        HoguExport.export(app, cats, out, progress, run.cancelled::get);
                     }
                     bytes = doc.length();
                     String abs = absolutePathOf(safDir, doc);
                     shownPath = abs != null ? abs : safDir.getName() + "/" + fileName;
                 }
 
+                succeeded = true;
                 reply.send("OK:" + shownPath + "|" + bytes + "|" + HoguExport.humanSize(bytes)
                         + "|" + cats.size() + " categories");
+            } catch (HoguExport.CancelledException e) {
+                // The terminal reply for the ORIGINAL request, sent even though the canceller is
+                // probably no longer listening: it is what proves the run ended rather than
+                // carrying on unseen. The AtomicBoolean makes it exclusive with a success.
+                reply.send("ERROR:cancelled");
             } catch (Exception e) {
                 Log.w(TAG, "export failed: " + e.getMessage(), e);
                 reply.send("ERROR:" + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
             } finally {
+                if (!succeeded) {
+                    deletePartial(partialFile, partialDoc);
+                }
+                RUNNING.compareAndSet(run, null);
                 pending.finish();
             }
         }, TAG).start();
+    }
+
+    /**
+     * Raise the cancel flag on the running export, if the request names it (an empty
+     * {@code reply_id} means "whatever is running"). Nothing running, or a name that does not match,
+     * is a silent no-op — never an error, never a reply, never a crash.
+     */
+    private static void cancelRunningExport(String replyId) {
+        Run run = RUNNING.get();
+        if (run == null || (!replyId.isEmpty() && !replyId.equals(run.replyId))) {
+            Log.w(TAG, ACTION_CANCEL_EXPORT + " [" + replyId + "] -> nothing to cancel");
+            return;
+        }
+        run.cancelled.set(true);
+        Log.w(TAG, ACTION_CANCEL_EXPORT + " [" + run.replyId + "] -> cancelling");
+    }
+
+    /** Take the half-written ZIP back out — a cancelled or failed export leaves no trace. */
+    private static void deletePartial(@Nullable File file, @Nullable DocumentFile doc) {
+        try {
+            if (file != null && file.exists()) {
+                file.delete();
+            }
+            if (doc != null && doc.exists()) {
+                doc.delete();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "could not delete the partial export: " + e.getMessage());
+        }
+    }
+
+    /** One running export: the request it belongs to, and the flag its write loop polls. */
+    private static final class Run {
+        private final String replyId;
+        private final AtomicBoolean cancelled = new AtomicBoolean(false);
+
+        Run(String replyId) {
+            this.replyId = replyId;
+        }
     }
 
     /** All-Files-Access — required to write a caller-supplied absolute path on API 30+. */
