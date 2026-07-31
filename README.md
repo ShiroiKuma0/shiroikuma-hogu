@@ -16,7 +16,7 @@ automation for the 白い熊 sister-app fleet, and a deep per-element font & col
 Installs **side-by-side** with the official Aegis (app id `shiroikuma.hogu`), so both can sit on the
 same phone without fighting over the vault.
 
-**📥 Latest release: [`3.4.2+13`](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases)
+**📥 Latest release: [`3.4.2+14`](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases)
 
 </div>
 

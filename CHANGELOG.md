@@ -6,6 +6,52 @@ All notable changes this fork makes on top of stock
 Fork versions are `<upstream version>+<fork build>`; the fork `versionCode` is
 `<upstream versionCode> * 10000 + <fork build>`.
 
+## 3.4.2+14 — 2026-07-31
+
+Base: Aegis `3.4.2` (versionCode 81) → fork versionCode `810014`. Two additions to the
+保存復元 automation contract, and nothing else moves.
+
+### 保存復元 — per-category default flag
+
+- **`LIST_CATEGORIES` now answers the contract's optional fourth field**: whether an item
+  **starts ticked**. Every line is `id<TAB>label<TAB>parent<TAB>on|off`, with an **empty
+  third field** on a top-level item so the flag always stays the fourth, positional one.
+- `HoguExport.Cat` carries a `defaultSelected` flag (a constructor overload defaulting to
+  `true`, so only the exceptions are spelled out). **`vault.usage` is the only `off`** —
+  derived counters that rebuild themselves simply by using the app. The vault itself, and
+  every other category, stays `on`.
+- **An `EXPORT_STATE` with no `items` extra now means that default set** — exactly the
+  categories the listing marks `on` — instead of blindly everything.
+- **The in-app Export/Import sheet seeds its checkboxes from the same flag**, so the app's
+  own panel and a caller's picker open on an identical selection. *Select all* is
+  pre-ticked only when the default really is everything.
+
+### 保存復元 — a cancellable export (`CANCEL_EXPORT`)
+
+- **New `<pkg>.action.CANCEL_EXPORT`**, declared on the **same exported receiver** as the
+  other two: a stop path hidden on an `exported="false"` component would be unreachable to
+  the caller that needs it.
+- Extras: `token` (required — the same gate as every other action) and an optional
+  `reply_id` (absent = the export running now).
+- **Fire-and-forget: never answered**, not with `OK:` and not even with an error — a
+  refused or unmatched cancel is only logged locally.
+- **Safe to send at any time.** Arriving when nothing is running, after the export already
+  finished, or naming a different `reply_id`, it is a **silent no-op** — not an error, not
+  a reply, not a crash.
+- The running export lives in a **static registry** (a `BroadcastReceiver` instance dies
+  with each broadcast, so the flag has to outlive it), and its `AtomicBoolean` is polled
+  **before every category and before every file** copied into the archive. The run unwinds
+  at a clean entry boundary — never an interrupted thread, never `System.exit`.
+- **A cancelled export leaves the backup directory exactly as it found it**: the
+  half-written ZIP is deleted in the same `finally` that now also cleans up after **every
+  other failure**, so no short archive is ever left behind.
+- The original request still receives its **one terminal reply, `ERROR:cancelled`**,
+  guarded by the existing `AtomicBoolean` so it can never double-fire with a success — it
+  is sent even when nobody is still listening, because it is what proves the run ended
+  rather than carrying on unseen.
+- No foreground service and no wakelock are involved here: the broadcast is held open with
+  `goAsync()` and released in that same `finally`.
+
 ## 3.4.2+13 — 2026-07-25
 
 First published release of 白い熊 防具. Base: Aegis `3.4.2` (versionCode 81) →
