@@ -6,6 +6,77 @@ All notable changes this fork makes on top of stock
 Fork versions are `<upstream version>+<fork build>`; the fork `versionCode` is
 `<upstream versionCode> * 10000 + <fork build>`.
 
+## 3.4.2+17 — 2026-09-04
+
+Base: Aegis `3.4.2` (versionCode 81) → fork versionCode `810017`. **保存復元 contract v2**: the
+gate turns around, a second door is added for backing this app up *with its data*, and a
+clean-phone restore that would have silently destroyed the vault is fixed.
+
+### The gate ships open, and the token becomes opt-in
+
+- **`automation_enabled` now defaults to `true`** and a new **`automation_require_token` defaults
+  to `false`**. A pasted secret cannot survive the wipe this feature exists to recover from, so an
+  app that only answers once the phone is already configured is no use for configuring the phone.
+- **A token sent to an app that does not require one is IGNORED, never refused.** Tokens outlive
+  the settings they were pasted for; refusing one would turn "the switch was turned off" into
+  "half the batch mysteriously fails".
+- **One function owns the whole gate** — `AutomationAuth.refuse()`, shared by the broadcast
+  receiver and the provider, so `automation disabled` and `bad token` cannot drift apart.
+- **All three gate writes are `commit()`, not `apply()`.** With the default flipped to `true`, a
+  lost `setEnabled(false)` leaves the key absent and the next read returns **ON** — a switch turned
+  off would come back on. A lost `regenerateToken` leaves the *old* token valid, so the one action
+  whose purpose is revocation would revoke nothing. These flags live in a device-local preferences
+  file separate from the app's main store, so a flush of the main store never covered them.
+- **UI**: the master switch, 「Use authorization token?」, and the token row **shown only when the
+  token is being asked for** — a 48-character secret under an off switch invites pasting it
+  somewhere it will do nothing.
+
+### The data door — a provider, a verified caller, and a file descriptor
+
+- **New `ContentProvider` at `shiroikuma.hogu.automation`** (`describe` · `export` · `import` ·
+  `cancel`), so 白い熊 応用管理 can back this app up **with its data** and restore it onto a wiped
+  phone. It sits alongside the §1 receiver rather than replacing it.
+- **The caller is identified three ways, all of which must agree**: an **exact package name**
+  (never a prefix — a package name is not a namespace anyone owns, so a sideloaded app may call
+  itself `shiroikuma.evil` and pass a prefix test), a **uid cross-check** the kernel answers, and a
+  **pinned signing certificate** — the check that matters on a clean phone, where whichever caller
+  is not yet installed is a name anyone could take.
+- **The payload moves through a `ParcelFileDescriptor` the caller opens**, duplicated before it
+  leaves the binder call and closed in a `finally`; never a path and never a URI. A descriptor is a
+  capability that expires when it is closed, and the caller's backup directory is renamed out from
+  under a writer on commit.
+- **`import` exists only here and never gets a broadcast action.** An import overwrites the vault,
+  and the export receiver is exported with no permission by design — an import there would let any
+  app on the phone wipe any sister app.
+- **`describe` answers a header without exporting anything** (`format` · `min_format_readable` ·
+  `contains`), so a caller can draw a row before an export exists and refuse an incompatible
+  restore before streaming megabytes into it.
+- Work runs in a **foreground service** (`specialUse`), with a **20-second heartbeat** so a single
+  long step — a font or icon-pack tree that reports nothing while it is written — is not mistaken
+  for a dead app. The descriptor has exactly **one owner on every path out** of `onStartCommand`.
+
+### Fixed: a clean-phone restore that silently lost the vault
+
+- Aegis decides whether to run its **first-run wizard** from `pref_intro`, which is device-local
+  and deliberately never exported. So *install → import → launch* would have shown the wizard and
+  written a **brand-new empty vault over the restored one**, discovered only when the codes were
+  next needed.
+- Declaring `requires_launch_first` could not have fixed it: the intro is an **interactive**
+  wizard, so a launch nobody completes leaves the flag exactly as it was.
+- The data-door import now marks the intro done **when, and only when, the archive actually
+  carried the vault** — skipping the wizard with no vault to open is the same bug facing the other
+  way. It is written with `commit()`, so the caller's force-stop cannot drop it, and that
+  synchronous write also flushes every preference the import merged on the way there.
+
+### Manifest
+
+- `provider` (exported, no permission — the caller check is the gate), the foreground `service`,
+  and the three `shiroikuma.automation.*` `<meta-data>` entries so a caller can discover this app's
+  capability **without waking it**, which matters because a frozen app cannot be asked anything.
+- **`<queries>` naming both callers.** Without it a reply broadcast's `setPackage()` fails
+  *silently* on Android 11+: the export runs, writes correctly, and is never heard of.
+- `FOREGROUND_SERVICE` and `FOREGROUND_SERVICE_SPECIAL_USE`.
+
 ## 3.4.2+14 — 2026-07-31
 
 Base: Aegis `3.4.2` (versionCode 81) → fork versionCode `810014`. Two additions to the
