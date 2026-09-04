@@ -225,7 +225,12 @@ public final class HoguExport {
             "pref_intro", "pref_export_latest", "pref_backups_result_builtin",
             "pref_backups_result_android", "pref_backups_reminder_needed",
             "pref_password_reminder_counter", "pref_password_reminder",
-            "pref_plaintext_backup_warning_needed"
+            "pref_plaintext_backup_warning_needed",
+            // When the automation data door last restored this install
+            // (com.beemdevelopment.aegis.automation.AutomationDataService). Device-local by nature,
+            // and it is written with commit() precisely so the restore is on disk before the caller
+            // is told it worked — carrying it into another install would be meaningless.
+            "pref_automation_imported_at"
     ));
 
     // ---------------------------------------------------------------------------------------------

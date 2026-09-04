@@ -32,16 +32,17 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <ul>
  *   <li>{@code <pkg>.action.EXPORT_STATE}: run the category-ZIP export ({@link HoguExport}) with no
- *       UI. Extras (all String): {@code token} (required), {@code path} (optional absolute directory
+ *       UI. Extras (all String): {@code token} (optional — see {@link AutomationAuth}), {@code path}
+ *       (optional absolute directory
  *       — wins over the configured export directory), {@code items} (optional comma list of
  *       {@link HoguExport.Cat} ids; absent/empty = this app's default set, i.e. every category the
  *       listing marks {@code on}), {@code progress_action} (optional), plus the reply trio
  *       {@code reply_action} / {@code reply_package} / {@code reply_id}.</li>
- *   <li>{@code <pkg>.action.LIST_CATEGORIES}: token-gated, instant category enumeration for the
+ *   <li>{@code <pkg>.action.LIST_CATEGORIES}: gated, instant category enumeration for the
  *       caller's picker. Lines are {@code id<TAB>label<TAB>parent-id<TAB>on|off} — the third field
  *       empty on a top-level item, the fourth this app's answer to "does it start ticked?".</li>
  *   <li>{@code <pkg>.action.CANCEL_EXPORT}: stop the running export. Extras: {@code token}
- *       (required, the same gate) and an optional {@code reply_id} (absent = the export running
+ *       (optional, the same gate) and an optional {@code reply_id} (absent = the export running
  *       now). <b>Fire-and-forget</b> — it is never answered, not even with an error, and arriving
  *       when nothing is running (or after the export already finished) is a silent no-op. It routes
  *       through this exported receiver on purpose: a third-party caller cannot reach a
@@ -74,8 +75,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@code current}/{@code total} (long) + {@code unit} (String). Throttled to at most one every
  * 500 ms, with a final one always sent at completion.
  *
- * <p>Security: exported with NO {@code android:permission} (the caller cannot hold one) — the master
- * switch plus the token are the gate. Both live on the 白い熊 防具 UI page under Export / Import.
+ * <p>Security: exported with NO {@code android:permission} (the caller cannot hold one). In contract
+ * v2 this receiver is the <b>unauthenticated</b> half of the automation surface, and that is
+ * deliberate: it only ever writes where it was told to and reports what it did. Everything that moves
+ * data through a caller-supplied descriptor lives behind
+ * {@link com.beemdevelopment.aegis.automation.AutomationProvider}, which knows who is calling. The
+ * master switch (default ON) and the optional token both live on the 白い熊 防具 UI page under
+ * Export / Import — see {@link AutomationAuth}.
  */
 public class StateExportReceiver extends BroadcastReceiver {
     public static final String ACTION_EXPORT_STATE = BuildConfig.APPLICATION_ID + ".action.EXPORT_STATE";
@@ -146,23 +152,20 @@ public class StateExportReceiver extends BroadcastReceiver {
             app.sendBroadcast(out);
         };
 
-        // Gate first — "disabled" and "bad token" are distinct on purpose (they debug differently).
+        // Gate first, through the ONE function that owns it — "disabled" and "bad token" stay
+        // distinct on purpose (they debug differently), and the token is only consulted when this app
+        // actually asks for one. A token sent to an app that does not want one is IGNORED, never
+        // refused: tokens outlive the settings they were pasted for, and refusing them would turn
+        // "白い熊 turned a switch off" into "half the batch mysteriously fails".
         // CANCEL_EXPORT is gated identically, but it is fire-and-forget: a refusal is logged and
         // never answered, because the action carries no reply of its own.
         final boolean cancelRequest = ACTION_CANCEL_EXPORT.equals(action);
-        if (!AutomationAuth.isEnabled(app)) {
+        final String refusal = AutomationAuth.refuse(app, token);
+        if (refusal != null) {
             if (cancelRequest) {
-                Log.w(TAG, action + " [" + replyId + "] -> ignored: automation disabled");
+                Log.w(TAG, action + " [" + replyId + "] -> ignored: " + refusal);
             } else {
-                reply.send("ERROR:automation disabled");
-            }
-            return;
-        }
-        if (!AutomationAuth.isTokenValid(app, token)) {
-            if (cancelRequest) {
-                Log.w(TAG, action + " [" + replyId + "] -> ignored: bad token");
-            } else {
-                reply.send("ERROR:bad token");
+                reply.send(refusal);
             }
             return;
         }

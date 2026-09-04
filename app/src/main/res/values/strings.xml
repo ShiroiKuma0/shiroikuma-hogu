@@ -77,8 +77,10 @@
 
     <!-- 保存復元 automation (the sister-app state-export contract) -->
     <string name="hogu_auto_switch">Automation export</string>
-    <string name="hogu_auto_switch_desc">Let sister-app tasks trigger this app\'s export through the token-gated intent</string>
+    <string name="hogu_auto_switch_desc">Let sister apps trigger this app\'s export, and back its data up</string>
     <string name="hogu_auto_no_storage">Grant All-files access so automation can write to the folder it asks for</string>
+    <string name="hogu_auto_require_token">Use authorization token?</string>
+    <string name="hogu_auto_require_token_desc">Off: any sister app may drive the automation. On: a caller must also present the token below. Either way, the data door checks the caller\'s package and signature.</string>
     <string name="hogu_auto_token">Automation token</string>
     <string name="hogu_auto_token_copied">Token copied to the clipboard</string>
     <string name="hogu_auto_token_regenerate">Regenerate</string>
@@ -89,6 +91,9 @@
     <string name="hogu_auto_storage_msg">Automation may ask this app to write its backup into a shared folder (so every sister app\'s backups land together). That needs All-files access. Without it, exports still go to the backup directory set above.</string>
     <string name="hogu_auto_storage_open">Open settings</string>
     <string name="hogu_auto_storage_skip">Not now</string>
+    <string name="hogu_auto_data_channel">Automation data</string>
+    <string name="hogu_auto_data_exporting">Backing this app\'s data up</string>
+    <string name="hogu_auto_data_importing">Restoring this app\'s data</string>
 
     <string name="action_settings">Settings</string>
     <string name="action_about">About</string>
