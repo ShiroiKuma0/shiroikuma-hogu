@@ -20,6 +20,14 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <!-- Fork (白い熊 防具): the automation data door's foreground service (contract v2 §2a). A data
+         export or import can run for minutes; a backgrounded app writing for minutes is frozen
+         mid-stream on this phone, which yields a truncated archive underneath a success reply — the
+         worst possible failure, because it is indistinguishable from a good backup until the day it
+         is restored. FOREGROUND_SERVICE_SPECIAL_USE is only consulted from API 34. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -164,6 +172,40 @@
             </intent-filter>
         </receiver>
 
+        <!-- Fork (白い熊 防具): the automation DATA DOOR (contract v2 §2a) — 応用管理 backs this app up
+             *with its data* and puts it back on a wiped phone. A provider rather than another
+             broadcast action for two reasons: a broadcast cannot tell you who sent it (and the
+             caller supplies the destination, so "no idea who is asking" would mean any app on the
+             phone can harvest this vault), and 応用管理 needs a synchronous answer to draw a row per
+             installed app before any export exists.
+
+             No android:permission, deliberately: a custom permission would have to be `normal` (any
+             app may hold it) or `signature` (impossible — every app in this family has its own
+             keystore, 42 of them). Neither buys anything the caller check does not. The gate is
+             AutomationCallers: an exact package name, a uid cross-check, and a pinned signing
+             certificate. `import` lives ONLY here and never gets a broadcast action. -->
+        <provider
+            android:name=".automation.AutomationProvider"
+            android:authorities="${applicationId}.automation"
+            android:exported="true" />
+
+        <service
+            android:name=".automation.AutomationDataService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Automation data export/import" />
+        </service>
+
+        <!-- Capability discovery, readable WITHOUT waking this app: 応用管理 builds its list across
+             every installed package with MATCH_UNINSTALLED_PACKAGES | MATCH_DISABLED_COMPONENTS,
+             because a frozen app (pm disable-user, which 白い熊 uses a lot) cannot be asked anything.
+             An app without these entries is simply not offered for data backup or restore. -->
+        <meta-data android:name="shiroikuma.automation.contract" android:value="2" />
+        <meta-data android:name="shiroikuma.automation.format" android:value="1" />
+        <meta-data android:name="shiroikuma.automation.min_format" android:value="1" />
+
         <receiver
             android:name=".receivers.QsTileRefreshReceiver"
             android:exported="false">
@@ -188,6 +230,12 @@
     </application>
 
     <queries>
+        <!-- Fork (白い熊 防具): the two 保存復元 callers. Without these, the reply broadcast's
+             setPackage() fails SILENTLY on Android 11+ — the export runs, writes correctly, and is
+             never heard of. 応用管理 drives the data door; 自由作業盤 drives the §1 receiver. -->
+        <package android:name="shiroikuma.oyokanri" />
+        <package android:name="shiroikuma.jiyusagyoban" />
+
         <package android:name="com.stratumauth.app" />
         <package android:name="com.authy.authy" />
         <package android:name="org.fedorahosted.freeotp" />

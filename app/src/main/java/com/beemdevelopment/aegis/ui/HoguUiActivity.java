@@ -451,9 +451,14 @@ public class HoguUiActivity extends AegisActivity implements HoguExportImportDia
     // region 保存復元 automation
 
     /**
-     * The master switch + the token row, appended directly below the Export / Import rows. Never a
-     * section of its own: this is a backup feature, so it lives where backup lives — the same place
-     * in every sister app. See {@link com.beemdevelopment.aegis.receivers.StateExportReceiver}.
+     * The three automation rows, appended directly below the Export / Import rows. Never a section
+     * of its own: this is a backup feature, so it lives where backup lives — the same place in every
+     * sister app. See {@link com.beemdevelopment.aegis.receivers.StateExportReceiver} and
+     * {@link com.beemdevelopment.aegis.automation.AutomationProvider}.
+     *
+     * <p>Contract v2 order: the master switch (default ON), 「Use authorization token?」 (default
+     * OFF), and the token itself — <b>shown only when it is being asked for</b>. A 48-character
+     * secret sitting under an off switch invites 白い熊 to paste it somewhere it will do nothing.
      */
     private void addAutomationRows() {
         boolean on = AutomationAuth.isEnabled(this);
@@ -481,7 +486,31 @@ public class HoguUiActivity extends AegisActivity implements HoguExportImportDia
         });
         _holder.addView(v);
 
-        addTokenRow();
+        addRequireTokenRow();
+        if (AutomationAuth.isTokenRequired(this)) {
+            addTokenRow();
+        }
+    }
+
+    /**
+     * 「Use authorization token?」 — default OFF. Off means any sister app may drive the automation;
+     * on means a caller must also present the token below. The data door checks the caller's package
+     * name, uid and signing certificate either way, which is what made the token optional rather
+     * than merely weaker — see
+     * {@link com.beemdevelopment.aegis.automation.AutomationCallers}.
+     */
+    private void addRequireTokenRow() {
+        boolean on = AutomationAuth.isTokenRequired(this);
+        View v = newRow(getString(R.string.hogu_auto_require_token),
+                getString(R.string.hogu_auto_require_token_desc), dimText(), 1);
+        MaterialSwitch sw = v.findViewById(R.id.hogu_row_switch);
+        sw.setVisibility(View.VISIBLE);
+        sw.setChecked(on);
+        v.setOnClickListener(view -> {
+            AutomationAuth.setTokenRequired(this, !AutomationAuth.isTokenRequired(this));
+            buildRows(); // the token row appears/disappears with it
+        });
+        _holder.addView(v);
     }
 
     /** Tap = copy the full token; "Regenerate" on the right = a fresh secret (revokes pasted copies). */
