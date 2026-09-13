@@ -6,6 +6,39 @@ All notable changes this fork makes on top of stock
 Fork versions are `<upstream version>+<fork build>`; the fork `versionCode` is
 `<upstream versionCode> * 10000 + <fork build>`.
 
+## 3.4.3+001 — 2026-09-13
+
+Base: Aegis `3.4.3` (versionCode 82) → fork versionCode `820001`. The first build on the new
+upstream line; every fork customisation was replayed onto it unchanged. No new features — this
+release is the upstream bump plus what the bump forced.
+
+### Rebased onto Aegis 3.4.3
+
+- All 18 fork commits replayed onto upstream's `v3.4.3` (2026-09-06). One conflict, in
+  `app/build.gradle`, where upstream's `versionCode`/`versionName` lines meet the fork's
+  `forkVersionCode`/`forkVersionName` — resolved by keeping the fork's and taking upstream's new
+  `targetSdkVersion 36`.
+- Inherits upstream's changes: **compileSdk / targetSdk 36**, Material Components **1.14.0**,
+  Robolectric 4.16.1, Gradle 8.14.5, and the Proton Authenticator encrypted-backup importer.
+- Fork `versionCode` starts a new line at `820001`, above every `3.4.2` build, so sideloaded
+  upgrades stay monotonic.
+
+### Fixed: Material 1.14 dropped `R.attr.colorPrimary`
+
+- Material Components 1.14.0 no longer exports `colorPrimary` from its own `R` — the attribute was
+  always AppCompat's, and Material stopped re-declaring it. The three fork sites that read it
+  (`HoguUiActivity`, `HoguExportImportDialog`) now read `androidx.appcompat.R.attr.colorPrimary`,
+  matching how upstream already reads `colorError`. Same theme attribute, same resolved colour.
+
+### Build counter zero-padded to three digits
+
+- `versionName` and the APK filename now carry `+001`, never `+1` — the family-wide rule. Unpadded
+  names sort `+100` before `+18`, which makes the wrong APK look newest and propagates into release
+  tags, since the tag is taken verbatim from the filename. `gradle.properties` keeps the raw
+  integer; padding is applied only where the string is composed.
+- Tags already published (`3.4.2+13`, `+14`, `+17`) are never renamed; padded tags sort before
+  them for a while.
+
 ## 3.4.2+17 — 2026-09-04
 
 Base: Aegis `3.4.2` (versionCode 81) → fork versionCode `810017`. **保存復元 contract v2**: the

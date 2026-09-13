@@ -17,7 +17,7 @@ been wiped — and a deep per-element font & colour customization page.
 Installs **side-by-side** with the official Aegis (app id `shiroikuma.hogu`), so both can sit on the
 same phone without fighting over the vault.
 
-**📥 Latest release: [`3.4.2+17`](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases)
+**📥 Latest release: [`3.4.3+001`](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-hogu/releases)
 
 </div>
 
@@ -152,8 +152,9 @@ cd shiroikuma-hogu
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew buildRelease
 ```
 
-Needs **JDK 17+** and the Android SDK (`compileSdk 35`). `buildRelease` builds the signed release
+Needs **JDK 17+** and the Android SDK (`compileSdk 36`). `buildRelease` builds the signed release
 APK, copies it to `~/tmp/`, and bumps the fork's build counter. Signing credentials come from a
 gitignored `keystore.properties`; without it the build is unsigned and won't install.
 
-Fork versions are `<upstream version>+<build>` — this release is Aegis `3.4.2`, fork build `17`.
+Fork versions are `<upstream version>+<NNN>`, the build counter zero-padded to three digits so
+names and tags sort in build order — this release is Aegis `3.4.3`, fork build `001`.
