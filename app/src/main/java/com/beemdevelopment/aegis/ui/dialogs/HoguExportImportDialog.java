@@ -99,7 +99,7 @@ public class HoguExportImportDialog {
         _callbacks = callbacks;
         _density = activity.getResources().getDisplayMetrics().density;
         _accent = HoguTheme.resolve(activity, HoguTheme.KEY_ACCENT,
-                com.google.android.material.R.attr.colorPrimary);
+                androidx.appcompat.R.attr.colorPrimary);
         _text = HoguTheme.resolve(activity, HoguTheme.KEY_TEXT,
                 com.google.android.material.R.attr.colorOnSurface);
         _background = HoguTheme.resolveAttr(activity,

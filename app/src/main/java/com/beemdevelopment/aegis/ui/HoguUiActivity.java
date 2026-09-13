@@ -160,7 +160,7 @@ public class HoguUiActivity extends AegisActivity implements HoguExportImportDia
         addSection(getString(R.string.hogu_section_foundation));
         addThemeRow(1);
         addColorRow(getString(R.string.hogu_accent_color), HoguTheme.KEY_ACCENT,
-                com.google.android.material.R.attr.colorPrimary, 1);
+                androidx.appcompat.R.attr.colorPrimary, 1);
         addColorRow(getString(R.string.hogu_text_color), HoguTheme.KEY_TEXT,
                 com.google.android.material.R.attr.colorOnSurface, 1);
 
@@ -197,7 +197,7 @@ public class HoguUiActivity extends AegisActivity implements HoguExportImportDia
     }
 
     private int accent() {
-        return HoguTheme.resolve(_holder, HoguTheme.KEY_ACCENT, com.google.android.material.R.attr.colorPrimary);
+        return HoguTheme.resolve(_holder, HoguTheme.KEY_ACCENT, androidx.appcompat.R.attr.colorPrimary);
     }
 
     private int textColor() {
