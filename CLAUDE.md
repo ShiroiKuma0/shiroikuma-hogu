@@ -49,14 +49,24 @@ in the manifest (`${fileProviderAuthority}` placeholder) and in code (`BuildConf
 We base our version on upstream and add a fork increment (`BUILD_NUMBER`).
 
 - `VERSION_NAME` / `VERSION_CODE` in `gradle.properties` **track upstream** (currently `3.4.2` / `81`).
-- `BUILD_NUMBER` is **our** increment. It starts at `1` and bumps by `1` on every build.
-- Fork `versionName` = `"<VERSION_NAME>+<BUILD_NUMBER>"` (e.g. `3.4.2+1`).
-- Fork `versionCode` = `VERSION_CODE * 10000 + BUILD_NUMBER` (e.g. `81 * 10000 + 1 = 810001`).
-- Output APK filename = `shiroikuma-hogu_<VERSION_NAME>+<BUILD_NUMBER>_arm64-v8a.apk`
-  (e.g. `shiroikuma-hogu_3.4.2+1_arm64-v8a.apk`).
+- `BUILD_NUMBER` is **our** increment. It starts at `1` and bumps by `1` on every build. It is stored
+  in `gradle.properties` as a **raw integer** (`BUILD_NUMBER=18`); the padding below is applied only
+  where the version string is composed, so the auto-increment stays integer arithmetic.
+- **The counter is ALWAYS zero-padded to three digits in the version string** (`+018`, never `+18`) —
+  the family-wide `after-build` rule. It is not cosmetic: unpadded names sort `+100` before `+18`, so
+  a plain listing of `~/tmp` makes the wrong APK look like the newest one, and the error propagates
+  into release tags because `/publish-version` takes the tag verbatim from the APK filename.
+- Fork `versionName` = `"<VERSION_NAME>+<NNN>"` (e.g. `3.4.2+018`).
+- Fork `versionCode` = `VERSION_CODE * 10000 + BUILD_NUMBER` (e.g. `81 * 10000 + 18 = 810018`) —
+  numeric, so padding never touches it.
+- Output APK filename = `shiroikuma-hogu_<VERSION_NAME>+<NNN>_arm64-v8a.apk`
+  (e.g. `shiroikuma-hogu_3.4.2+018_arm64-v8a.apk`).
+- **Tags already published stay as they are.** `3.4.2+13`, `3.4.2+14` and `3.4.2+17` predate the
+  padding and are never renamed or retagged; padded tags simply sort before them for a while.
 
-So the first build is `+1` (`810001`), the next build with changes is `+2` (`810002`), and so on. The
-`_arm64-v8a` suffix just names the deploy target — the APK has no native libs and is effectively universal.
+So the first build is `+001` (`810001`), the next build with changes is `+002` (`810002`), and so on.
+The `_arm64-v8a` suffix just names the deploy target — the APK has no native libs and is effectively
+universal.
 
 ### Building
 

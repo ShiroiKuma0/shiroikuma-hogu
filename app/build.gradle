@@ -25,9 +25,18 @@ def fileProviderAuthority = "${appId}.fileprovider"
 def fileProviderAuthorityDebug = "${appId}.debug.fileprovider"
 
 // Fork version: track upstream's VERSION_NAME / VERSION_CODE and append our own BUILD_NUMBER.
-def forkVersionName = "${project.property("VERSION_NAME")}+${project.property("BUILD_NUMBER")}"
-def forkVersionCode = project.property("VERSION_CODE").toString().toInteger() * 10000 +
-        project.property("BUILD_NUMBER").toString().toInteger()
+//
+// The counter is ALWAYS zero-padded to three digits in the version string (+018, not +18) — the
+// family-wide after-build rule. It exists so that names sort in build order: a plain listing puts
+// +100 before +18, which silently makes the wrong APK look like the newest one, and the same
+// ordering bug reaches release tags because the tag is taken verbatim from the APK filename.
+//
+// gradle.properties keeps the RAW integer (BUILD_NUMBER=18). Padding is applied only here, when the
+// string is composed — so the auto-increment below stays plain integer arithmetic and its
+// find-and-replace in gradle.properties keeps matching.
+def forkBuildNumber = project.property("BUILD_NUMBER").toString().toInteger()
+def forkVersionName = "${project.property("VERSION_NAME")}+${String.format('%03d', forkBuildNumber)}"
+def forkVersionCode = project.property("VERSION_CODE").toString().toInteger() * 10000 + forkBuildNumber
 
 // Release signing: read from keystore.properties (gitignored) first, then SIGNING_* env vars.
 def keystorePropertiesFile = rootProject.file("keystore.properties")
